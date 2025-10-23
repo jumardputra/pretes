@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Python Dasar</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .student-form {
+            padding: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .quiz-section {
+            padding: 30px;
+            display: none;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4facfe;
+        }
+        
+        .question-number {
+            color: #4facfe;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .option {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .option:hover {
+            border-color: #4facfe;
+            background: #f0f8ff;
+        }
+        
+        .option.selected {
+            border-color: #4facfe;
+            background: #4facfe;
+            color: white;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .result-section {
+            padding: 30px;
+            text-align: center;
+            display: none;
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin: 20px 0;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .toast.error {
+            background: #f44336;
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="header">
+    <h1 id="quiz-title">Kuis Python Dasar</h1>
+    <p id="instruction-text">Uji pemahaman Anda tentang tipe data, operator aritmatika, dan fungsi input/output Python</p>
+   </div>
+   <div class="student-form" id="student-form">
+    <div class="form-group"><label for="nama">Nama Lengkap:</label> <input type="text" id="nama" required>
+    </div>
+    <div class="form-group"><label for="kelas">Kelas:</label> <input type="text" id="kelas" placeholder="Contoh: XI IPA 1" required>
+    </div><button class="btn" onclick="startQuiz()">Mulai Kuis</button>
+   </div>
+   <div class="quiz-section" id="quiz-section">
+    <div class="progress-bar">
+     <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div id="question-container"></div>
+    <div style="text-align: center; margin-top: 30px;"><button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Selanjutnya</button>
+    </div>
+   </div>
+   <div class="result-section" id="result-section">
+    <h2>Kuis Selesai!</h2>
+    <div class="score-display" id="final-score">
+     0
+    </div>
+    <p>Nilai Anda telah disimpan ke database.</p><button class="btn" onclick="restartQuiz()">Ulangi Kuis</button>
+   </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+        const defaultConfig = {
+            quiz_title: "Kuis Python Dasar",
+            instruction_text: "Uji pemahaman Anda tentang tipe data, operator aritmatika, dan fungsi input/output Python"
+        };
+
+        const questions = [
+            {
+                question: "Manakah yang merupakan tipe data string dalam Python?",
+                options: ["123", "'Hello World'", "True", "3.14"],
+                correct: 1
+            },
+            {
+                question: "Apa hasil dari kode Python berikut?",
+                code: "x = 10\ny = 3\nprint(x // y)",
+                options: ["3.33", "3", "4", "Error"],
+                correct: 1
+            },
+            {
+                question: "Fungsi mana yang digunakan untuk menerima input dari user?",
+                options: ["print()", "input()", "get()", "read()"],
+                correct: 1
+            },
+            {
+                question: "Lengkapi kode berikut untuk mencetak 'Halo Python':",
+                code: "message = 'Halo Python'\n_____(message)",
+                options: ["input", "print", "show", "display"],
+                correct: 1
+            },
+            {
+                question: "Apa tipe data dari variabel berikut?",
+                code: "nilai = 85.5",
+                options: ["int", "float", "string", "boolean"],
+                correct: 1
+            },
+            {
+                question: "Hasil dari operasi 15 % 4 adalah:",
+                options: ["3", "3.75", "4", "15"],
+                correct: 0
+            },
+            {
+                question: "Lengkapi kode untuk mengubah string menjadi integer:",
+                code: "umur_str = '17'\numur_int = _____(umur_str)",
+                options: ["str()", "int()", "float()", "bool()"],
+                correct: 1
+            },
+            {
+                question: "Apa output dari kode berikut?",
+                code: "a = 5\nb = 2\nprint(a ** b)",
+                options: ["7", "10", "25", "32"],
+                correct: 2
+            },
+            {
+                question: "Manakah cara yang benar untuk menerima input dan mengubahnya menjadi integer?",
+                options: [
+                    "x = input(int('Masukkan angka: '))",
+                    "x = int(input('Masukkan angka: '))",
+                    "x = input('Masukkan angka: ').int()",
+                    "x = integer(input('Masukkan angka: '))"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa yang akan terjadi jika kode berikut dijalankan?",
+                code: "print('Nilai Anda:', 90, 'dari 100')",
+                options: [
+                    "Error karena sintaks salah",
+                    "Mencetak: Nilai Anda: 90 dari 100",
+                    "Mencetak: Nilai Anda:90dari100",
+                    "Hanya mencetak angka 90"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang bukan termasuk tipe data numerik dalam Python?",
+                options: ["int", "float", "complex", "string"],
+                correct: 3
+            },
+            {
+                question: "Apa hasil dari kode berikut?",
+                code: "x = 'Python'\ny = 'Programming'\nprint(x + ' ' + y)",
+                options: ["Python Programming", "PythonProgramming", "Python+Programming", "Error"],
+                correct: 0
+            },
+            {
+                question: "Lengkapi kode untuk menghitung luas persegi panjang:",
+                code: "panjang = 10\nlebar = 5\nluas = panjang _____ lebar\nprint(luas)",
+                options: ["+", "-", "*", "/"],
+                correct: 2
+            },
+            {
+                question: "Apa tipe data dari hasil operasi berikut?",
+                code: "hasil = 10 / 3",
+                options: ["int", "float", "string", "boolean"],
+                correct: 1
+            },
+            {
+                question: "Manakah sintaks yang benar untuk menerima input nama dan menampilkannya?",
+                options: [
+                    "nama = input('Nama: ')\nprint('Halo', nama)",
+                    "nama = print('Nama: ')\ninput('Halo', nama)",
+                    "nama = get('Nama: ')\nshow('Halo', nama)",
+                    "nama = read('Nama: ')\ndisplay('Halo', nama)"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+        let studentData = {};
+
+        const dataHandler = {
+            onDataChanged(data) {
+                // Update UI jika diperlukan
+            }
+        };
+
+        async function initializeApp() {
+            console.log('Menginisialisasi aplikasi...');
+            
+            // Tambahkan indikator status
+            const statusIndicator = document.createElement('div');
+            statusIndicator.id = 'connection-status';
+            statusIndicator.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                background: #ff9800;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 5px;
+                font-size: 12px;
+                z-index: 1000;
+            `;
+            statusIndicator.textContent = '🔄 Menghubungkan ke database...';
+            document.body.appendChild(statusIndicator);
+            
+            if (window.dataSdk) {
+                console.log('Data SDK tersedia, menginisialisasi...');
+                const result = await window.dataSdk.init(dataHandler);
+                if (result.isOk) {
+                    console.log('Data SDK berhasil diinisialisasi');
+                    statusIndicator.style.background = '#4caf50';
+                    statusIndicator.textContent = '✅ Database terhubung';
+                    setTimeout(() => statusIndicator.remove(), 3000);
+                } else {
+                    console.error("Gagal menginisialisasi Data SDK:", result.error);
+                    statusIndicator.style.background = '#f44336';
+                    statusIndicator.textContent = '❌ Koneksi database gagal';
+                }
+            } else {
+                console.error('Data SDK tidak tersedia');
+                statusIndicator.style.background = '#f44336';
+                statusIndicator.textContent = '❌ Data SDK tidak tersedia';
+            }
+
+            if (window.elementSdk) {
+                await window.elementSdk.init({
+                    defaultConfig,
+                    render: async (config) => {
+                        document.getElementById('quiz-title').textContent = config.quiz_title || defaultConfig.quiz_title;
+                        document.getElementById('instruction-text').textContent = config.instruction_text || defaultConfig.instruction_text;
+                    },
+                    mapToCapabilities: (config) => ({
+                        recolorables: [],
+                        borderables: [],
+                        fontEditable: undefined,
+                        fontSizeable: undefined
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ["quiz_title", config.quiz_title || defaultConfig.quiz_title],
+                        ["instruction_text", config.instruction_text || defaultConfig.instruction_text]
+                    ])
+                });
+            }
+        }
+
+        function startQuiz() {
+            const nama = document.getElementById('nama').value.trim();
+            const kelas = document.getElementById('kelas').value.trim();
+            
+            if (!nama || !kelas) {
+                showToast('Mohon isi nama dan kelas terlebih dahulu!', 'error');
+                return;
+            }
+            
+            // Validasi panjang nama dan kelas
+            if (nama.length < 2) {
+                showToast('Nama harus minimal 2 karakter!', 'error');
+                return;
+            }
+            
+            if (kelas.length < 2) {
+                showToast('Kelas harus minimal 2 karakter!', 'error');
+                return;
+            }
+            
+            // Cek ketersediaan Data SDK
+            if (!window.dataSdk) {
+                showToast('Sistem penyimpanan belum siap. Silakan tunggu sebentar.', 'error');
+                return;
+            }
+            
+            studentData = { nama, kelas };
+            console.log('Data siswa:', studentData);
+            
+            document.getElementById('student-form').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const container = document.getElementById('question-container');
+            
+            let html = `
+                <div class="question-card">
+                    <div class="question-number">Soal ${currentQuestion + 1} dari ${questions.length}</div>
+                    <div class="question-text">${question.question}</div>
+            `;
+            
+            if (question.code) {
+                html += `<div class="code-block">${question.code}</div>`;
+            }
+            
+            html += '<div class="options">';
+            question.options.forEach((option, index) => {
+                html += `
+                    <div class="option" onclick="selectOption(${index})">
+                        ${String.fromCharCode(65 + index)}. ${option}
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+            
+            container.innerHTML = html;
+            updateProgress();
+            document.getElementById('next-btn').disabled = true;
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            answers[currentQuestion] = index;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestion] === questions[currentQuestion].correct) {
+                score++;
+            }
+            
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        async function finishQuiz() {
+            const finalScore = Math.round((score / questions.length) * 100);
+            
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('final-score').textContent = finalScore;
+            
+            // Tampilkan status penyimpanan
+            const resultSection = document.getElementById('result-section');
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'save-status';
+            statusDiv.innerHTML = '<p style="color: #4facfe;">🔄 Menyimpan data ke Canva Sheet...</p>';
+            resultSection.insertBefore(statusDiv, resultSection.lastElementChild);
+            
+            // Simpan ke database dengan validasi lengkap
+            if (window.dataSdk) {
+                try {
+                    const dataToSave = {
+                        nama: studentData.nama,
+                        kelas: studentData.kelas,
+                        nilai: finalScore,
+                        tanggal: new Date().toISOString()
+                    };
+                    
+                    console.log('Menyimpan data:', dataToSave);
+                    
+                    const result = await window.dataSdk.create(dataToSave);
+                    
+                    if (result.isOk) {
+                        statusDiv.innerHTML = '<p style="color: #4caf50;">✅ Data berhasil disimpan ke Canva Sheet!</p>';
+                        showToast('Nilai berhasil disimpan ke database!');
+                        
+                        // Tampilkan detail data yang disimpan
+                        const detailDiv = document.createElement('div');
+                        detailDiv.innerHTML = `
+                            <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;">
+                                <h4 style="margin: 0 0 10px 0; color: #4facfe;">Data yang Tersimpan:</h4>
+                                <p><strong>Nama:</strong> ${dataToSave.nama}</p>
+                                <p><strong>Kelas:</strong> ${dataToSave.kelas}</p>
+                                <p><strong>Nilai:</strong> ${dataToSave.nilai}/100</p>
+                                <p><strong>Tanggal:</strong> ${new Date(dataToSave.tanggal).toLocaleString('id-ID')}</p>
+                            </div>
+                        `;
+                        resultSection.insertBefore(detailDiv, resultSection.lastElementChild);
+                        
+                    } else {
+                        statusDiv.innerHTML = '<p style="color: #f44336;">❌ Gagal menyimpan data. Silakan coba lagi.</p>';
+                        showToast('Gagal menyimpan nilai. Silakan coba lagi.', 'error');
+                        console.error('Error menyimpan data:', result.error);
+                        
+                        // Tambahkan tombol retry
+                        const retryBtn = document.createElement('button');
+                        retryBtn.className = 'btn';
+                        retryBtn.textContent = 'Coba Simpan Lagi';
+                        retryBtn.onclick = () => finishQuiz();
+                        retryBtn.style.marginRight = '10px';
+                        resultSection.insertBefore(retryBtn, resultSection.lastElementChild);
+                    }
+                } catch (error) {
+                    statusDiv.innerHTML = '<p style="color: #f44336;">❌ Terjadi kesalahan saat menyimpan data.</p>';
+                    showToast('Terjadi kesalahan sistem. Silakan coba lagi.', 'error');
+                    console.error('Exception saat menyimpan:', error);
+                }
+            } else {
+                statusDiv.innerHTML = '<p style="color: #ff9800;">⚠️ Data SDK tidak tersedia. Data tidak dapat disimpan.</p>';
+                showToast('Sistem penyimpanan tidak tersedia.', 'error');
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            studentData = {};
+            
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('student-form').style.display = 'block';
+            document.getElementById('nama').value = '';
+            document.getElementById('kelas').value = '';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'992f6cb8224eb2df',t:'MTc2MTIwMzUzMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
